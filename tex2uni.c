@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -807,22 +808,98 @@ static char const *map[] = {
 	"♮",
 	"\\sharp",
 	"♯",
+
+	"\\o",
+	"ø",
+	"\\l",
+	"ł"
 };
+
+static char const *map_combining[] = {
+	"\\`",
+	"\u0300",
+	// accent grave
+	"\\'",
+	"\u0301",
+	// accent acute
+	"\\^",
+	"\u0302",
+	// accent circumflex
+	"\\~",
+	"\u0303",
+	// tilde above
+	"\\=",
+	"\u0304",
+	// bar above (macron)
+	"\\u",
+	"\u0306",
+	// breve above
+	"\\.",
+	"\u0307",
+	// dot above
+	"\\\"",
+	"\u0308",// umlaut
+	"\\r",
+	"\u030A",
+	// ring above
+	"\\H",
+	"\u030B",
+	// double acute (Hungarian umlaut)
+	"\\v",
+	"\u030C",
+	// caron ("v") above
+	"\\d",
+	"\u0323",
+	// dot below
+	"\\c",
+	"\u0327",
+	// cedille
+	"\\k",
+	"\u0328",
+	// ogonek
+	"\\b",
+	"\u0332",
+	// bar below
+};
+
+bool match_single(char const *arg)
+{
+	int const single_len = sizeof(map) / sizeof(map[0]);
+	for (int i = 0; i < single_len; i += 2) {
+		if (strcmp(map[i], arg) == 0) {
+			printf("%s", map[i + 1]);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool match_combining(char const *arg)
+{
+	int const combining_len = sizeof(map_combining) / sizeof(map_combining[0]);
+	for (int i = 0; i < combining_len; i += 2) {
+		char const *pre = map_combining[i];
+		int const len_pre = strlen(pre);
+		if (strncmp(pre, arg, len_pre) == 0) {
+			printf("%s%s", arg + len_pre, map_combining[i + 1]);
+			return true;
+		}
+	}
+	return false;
+}
+
 
 int main(int argc, char const *argv[])
 {
 	if (argc < 2) return -1;
 
-	for (int i = 0; i < (sizeof(map) / sizeof(map[0])); i += 2) {
-		if (strcmp(map[i], argv[1]) == 0) {
-			printf("%s", map[i + 1]);
-			// if stdout isn't a terminal, assume we are being piped
-			// into something clipboard-like, and we don't want a newline.
-			if (isatty(fileno(stdout))) {
-				printf("\n");
-			}
-			return 0;
+	if (match_single(argv[1]) || match_combining(argv[1])) {
+		// if stdout isn't a terminal, assume we are being piped
+		// into something clipboard-like, and we don't want a newline.
+		if (isatty(fileno(stdout))) {
+			printf("\n");
 		}
+		return 0;
 	}
 
 	return -1;
