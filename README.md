@@ -7,7 +7,9 @@ command line tool for converting TeX symbol names into UTF-8 characters.
     Σ
     > tex2uni ^2
     ²
-    
+    > tex2uni \\ra
+    å
+
 the double-backslash is necessary because you're escaping for `bash`. 
 
 ## setup
