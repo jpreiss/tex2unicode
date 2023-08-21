@@ -827,6 +827,9 @@ static char const *map_combining[] = {
 	"\\^",
 	"\u0302",
 	// accent circumflex
+	"\\hat",
+	"\u0302",
+	// accent circumflex - alternate
 	"\\~",
 	"\u0303",
 	// tilde above
